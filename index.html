@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Delarosa Pairings</title>
+<style>
+  :root {
+    --red: #C0392B;
+    --dark: #1a1a1a;
+    --mid: #2d2d2d;
+    --card: #252525;
+    --border: #3a3a3a;
+    --text: #f0ece4;
+    --muted: #9a9590;
+    --gold: #c9a84c;
+    --wine: #7b2d4e;
+    --beer: #c07a1a;
+    --cocktail: #2a6e72;
+    --white-wine: #6b7c3a;
+    --accent: #e8d5b7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* HEADER */
+  header {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 28px;
+    color: var(--red);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .tagline {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  #search {
+    width: 100%;
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 16px;
+    padding: 10px 12px 10px 38px;
+    outline: none;
+  }
+  #search::placeholder { color: var(--muted); }
+
+  /* FILTER TABS */
+  .filters {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-btn {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 6px 14px;
+    white-space: nowrap;
+    transition: all 0.15s;
+    -webkit-appearance: none;
+  }
+  .filter-btn.active {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+
+  /* CONTENT */
+  main { padding: 12px 16px; }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    display: flex;
+    background: var(--mid);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+  .mode-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px;
+    text-align: center;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+  }
+  .mode-btn.active {
+    background: var(--card);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+
+  /* SECTION HEADERS */
+  .section-label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 20px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* FOOD CARDS */
+  .item-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .item-card:active { border-color: var(--red); }
+  .item-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 16px;
+  }
+  .item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    line-height: 1.3;
+  }
+  .item-desc {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .chevron {
+    color: var(--muted);
+    margin-left: 10px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .item-card.open .chevron { transform: rotate(90deg); }
+  .pairings-panel {
+    display: none;
+    padding: 0 16px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .item-card.open .pairings-panel { display: block; }
+  .pairing-section {
+    margin-top: 12px;
+  }
+  .pairing-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .pairing-label.wine { color: var(--gold); }
+  .pairing-label.cocktail { color: #7ecac8; }
+  .pairing-label.beer { color: #e0a84a; }
+  .pairing-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    line-height: 1.4;
+  }
+  .chip.wine { background: rgba(123,45,78,0.3); border: 1px solid rgba(123,45,78,0.6); color: #e8a0b8; }
+  .chip.cocktail { background: rgba(42,110,114,0.3); border: 1px solid rgba(42,110,114,0.6); color: #7ecac8; }
+  .chip.beer { background: rgba(192,122,26,0.3); border: 1px solid rgba(192,122,26,0.6); color: #e8c47a; }
+  .chip.note { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); color: var(--gold); font-style: italic; }
+
+  /* BEVERAGE CARDS */
+  .bev-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .bev-header {
+    align-items: center;
+    display: flex;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .bev-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .bev-info { flex: 1; }
+  .bev-name {
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .bev-sub {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .bev-type-tag {
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 7px;
+    text-transform: uppercase;
+  }
+  .bev-type-tag.red-wine { background: rgba(123,45,78,0.3); color: #e8a0b8; }
+  .bev-type-tag.white-wine { background: rgba(107,124,58,0.3); color: #c5d88a; }
+  .bev-type-tag.sparkling { background: rgba(201,168,76,0.2); color: var(--gold); }
+  .bev-type-tag.cocktail { background: rgba(42,110,114,0.3); color: #7ecac8; }
+  .bev-type-tag.beer { background: rgba(192,122,26,0.3); color: #e8c47a; }
+  .bev-panel {
+    display: none;
+    padding: 0 16px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .bev-card.open .bev-panel { display: block; }
+  .bev-card.open .chevron { transform: rotate(90deg); }
+  .food-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .food-chip {
+    background: rgba(240,236,228,0.08);
+    border: 1px solid rgba(240,236,228,0.15);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  .pairs-with-label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+
+  /* NO RESULTS */
+  .no-results {
+    color: var(--muted);
+    font-size: 15px;
+    text-align: center;
+    padding: 40px 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">delarosa</div>
+  <div class="tagline">Food &amp; Drink Pairings</div>
+  <div class="search-wrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" id="search" placeholder="Search dishes or drinks…" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="Antipasti">Antipasti</button>
+    <button class="filter-btn" data-filter="Insalate">Insalate</button>
+    <button class="filter-btn" data-filter="Fritti">Fritti</button>
+    <button class="filter-btn" data-filter="Spiedini">Spiedini</button>
+    <button class="filter-btn" data-filter="Pasta">Pasta</button>
+    <button class="filter-btn" data-filter="Pizza">Pizza</button>
+    <button class="filter-btn" data-filter="Panini">Panini</button>
+    <button class="filter-btn" data-filter="Specials">Specials</button>
+  </div>
+</header>
+
+<main>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFood" onclick="setMode('food')">🍽 By Food</button>
+    <button class="mode-btn" id="modeDrink" onclick="setMode('drink')">🍷 By Drink</button>
+  </div>
+
+  <div id="foodView"></div>
+  <div id="drinkView" style="display:none"></div>
+</main>
+
+<script>
+const MENU = [
+  // ANTIPASTI
+  { id: 1, category: "Antipasti", name: "Prosciutto e Burrata", desc: "pickled onions, gnocco fritto",
+    wines: ["Prosecco Rosé", "Ribolla Gialla Brut", "Gavi"],
+    cocktails: ["Pearl Negroni"],
+    beers: ["Kölsch"],
+    note: "Delicate cured meat & fresh cheese call for crisp bubbles or a clean white" },
+
+  { id: 2, category: "Antipasti", name: "Marinated Olives", desc: "castelvetrano, peranzana",
+    wines: ["Verdicchio", "Falanghina", "Pinot Grigio"],
+    cocktails: ["Aperol Spritz", "Bacca"],
+    beers: ["Kölsch", "Witbier"],
+    note: "Briny, herbal olives pair with crisp Italian whites and light aperitivi" },
+
+  { id: 3, category: "Antipasti", name: "Burrata Bruschetta", desc: "hazelnut & honey",
+    wines: ["Ribolla Gialla Brut", "Gavi", "Pinot Grigio"],
+    cocktails: ["Hugo", "Lavender Social"],
+    beers: ["Kölsch"],
+    note: "Sweet honey & rich burrata love floral, effervescent wines" },
+
+  { id: 4, category: "Antipasti", name: "Caponatina", desc: "eggplant, celery, pine nuts, olives, cherry tomato, white balsamic, crostini",
+    wines: ["Verdicchio", "Falanghina", "Barbera"],
+    cocktails: ["Bacca", "Aperol Spritz"],
+    beers: ["Witbier", "Amber Ale"],
+    note: "Agrodolce flavors need acidic wines or light spritzes to match" },
+
+  { id: 5, category: "Antipasti", name: "Onion Focaccia", desc: "extra virgin olive oil",
+    wines: ["Pinot Grigio", "House White – Pinot Gris", "Falanghina"],
+    cocktails: ["Salty Dog", "Hugo"],
+    beers: ["Kölsch", "Pilsner"],
+    note: "Savory bread loves crisp, unoaked whites" },
+
+  { id: 6, category: "Antipasti", name: "Meatballs", desc: "spicy tomato sauce, crostini",
+    wines: ["Montepulciano", "Barbera", "Chianti"],
+    cocktails: ["Likely Story"],
+    beers: ["House IPA", "Amber Ale"],
+    note: "Bold tomato & meat call for medium-bodied Italian reds" },
+
+  { id: 7, category: "Antipasti", name: "White Prawns", desc: "garlic, butter, lemon, saffron, calabrese chilis",
+    wines: ["Falanghina", "Gavi", "Verdicchio"],
+    cocktails: ["Salty Dog", "Pearl Negroni"],
+    beers: ["Kölsch", "Witbier"],
+    note: "Citrus-butter seafood shines alongside aromatic, mineral whites" },
+
+  { id: 8, category: "Antipasti", name: "Broccolini", desc: "roasted garlic, calabrese chilis",
+    wines: ["Verdicchio", "House White – Pinot Gris", "Falanghina"],
+    cocktails: ["Hugo", "El Diablo"],
+    beers: ["Witbier", "Kölsch"],
+    note: "Earthy greens & heat need crisp, herbal whites" },
+
+  // INSALATE
+  { id: 9, category: "Insalate", name: "Caesar Salad", desc: "little gem lettuce, croutons, parmesan",
+    wines: ["Pinot Grigio", "Gavi", "House White – Pinot Gris"],
+    cocktails: ["Salty Dog", "Pearl Negroni"],
+    beers: ["Kölsch", "Pilsner"],
+    note: "Creamy, anchovy-forward dressing pairs with crisp, dry whites" },
+
+  { id: 10, category: "Insalate", name: "Gold & Red Beets", desc: "kale, avocado, farro, sliced almonds, goat cheese",
+    wines: ["Rosé", "Pinot Gris", "Pinot Nero"],
+    cocktails: ["Hugo", "Lavender Social"],
+    beers: ["Witbier", "Hazy IPA"],
+    note: "Earthy beets & tangy goat cheese love a fresh rosé or floral white" },
+
+  { id: 11, category: "Insalate", name: "Winter Salad", desc: "chicories, roasted butternut squash, apples, candied pecans, balsamic",
+    wines: ["Pinot Noir", "Cabernet Franc", "Barbera"],
+    cocktails: ["Likely Story", "Lavender Social"],
+    beers: ["Amber Ale", "Oatmeal Stout"],
+    note: "Bitter chicory, sweet squash & balsamic need a fruity, medium red" },
+
+  // FRITTI
+  { id: 12, category: "Fritti", name: "Crab Arancini", desc: "calabrese aioli",
+    wines: ["Ribolla Gialla Brut", "Prosecco Rosé", "Gavi"],
+    cocktails: ["Salty Dog", "Pearl Negroni"],
+    beers: ["Kölsch", "Pilsner"],
+    note: "Crispy fried rice balls love sparkling wine — bubbles cut the oil" },
+
+  { id: 13, category: "Fritti", name: "Cauliflower", desc: "bagna cauda, calabrese chilis",
+    wines: ["Verdicchio", "Falanghina", "Pinot Grigio"],
+    cocktails: ["Hugo", "El Diablo"],
+    beers: ["Witbier", "Kölsch"],
+    note: "Anchovy-rich bagna cauda needs a bright, unoaked white" },
+
+  { id: 14, category: "Fritti", name: "Calamari", desc: "shishito peppers, herb aioli",
+    wines: ["Ribolla Gialla Brut", "Gavi", "Falanghina"],
+    cocktails: ["Salty Dog", "Aperol Spritz"],
+    beers: ["Kölsch", "Witbier"],
+    note: "Light fried seafood is classic with sparkling or crisp Italian whites" },
+
+  // PANINI
+  { id: 15, category: "Panini", name: "Meatball Sub", desc: "acme sour roll, provolone, pomodoro, calabrese aioli, arugula, pickled veggies",
+    wines: ["Montepulciano", "Barbera", "House Red – Cabernet"],
+    cocktails: ["Likely Story", "El Diablo"],
+    beers: ["House IPA", "Amber Ale"],
+    note: "Hearty tomato-meat sandwich loves medium-bodied Italian reds" },
+
+  { id: 16, category: "Panini", name: "Vegetarian Panini", desc: "eggplant, zucchini, arugula, mushrooms, onion, pesto, fontina",
+    wines: ["Pinot Grigio", "Rosé", "Falanghina"],
+    cocktails: ["Hugo", "Bacca"],
+    beers: ["Witbier", "Kölsch"],
+    note: "Herby, veggie-forward sandwich pairs with fresh, light wines" },
+
+  // SPIEDINI
+  { id: 17, category: "Spiedini", name: "Chicken Thigh Skewer", desc: "rosemary, garlic, cannellini beans, pancetta, kale, mirepoix, white wine",
+    wines: ["Barbera", "Pinot Nero", "Chianti"],
+    cocktails: ["Likely Story", "Marco Polo"],
+    beers: ["Amber Ale", "House IPA"],
+    note: "Rustic braised chicken loves a fruit-forward medium red" },
+
+  { id: 18, category: "Spiedini", name: "Salmone Skewer", desc: "rainbow quinoa, garlic confit, lacinato kale, capers, oregano, lemon olive oil",
+    wines: ["Falanghina", "Verdicchio", "Gavi"],
+    cocktails: ["Salty Dog", "Pearl Negroni"],
+    beers: ["Kölsch", "Witbier"],
+    note: "Bright lemon-caper salmon needs a crisp, mineral white" },
+
+  { id: 19, category: "Spiedini", name: "Hanger Steak", desc: "fingerling potatoes, caramelized onions, rosemary, radicchio trevisano, salmoriglio",
+    wines: ["Nebbiolo", "Cabernet Franc", "House Red – Cabernet"],
+    cocktails: ["Likely Story"],
+    beers: ["House IPA", "Oatmeal Stout"],
+    note: "Bold, herby steak demands a structured, tannic red" },
+
+  // PASTA
+  { id: 20, category: "Pasta", name: "Pappardelle", desc: "napoletana pork sugo, pecorino",
+    wines: ["Montepulciano", "Chianti", "Barbera"],
+    cocktails: ["Likely Story"],
+    beers: ["House IPA", "Amber Ale"],
+    note: "Rich slow-cooked pork ragù is a classic match for Chianti or Montepulciano" },
+
+  { id: 21, category: "Pasta", name: "Ziti", desc: "chicken parmigiana",
+    wines: ["Chianti", "Barbera", "House Red – Cabernet"],
+    cocktails: ["Likely Story", "Marco Polo"],
+    beers: ["Amber Ale", "House IPA"],
+    note: "Tomato-cheese pasta loves a Sangiovese-based red" },
+
+  { id: 22, category: "Pasta", name: "Rigatoncini", desc: "smoked pancetta, spicy vodka sauce",
+    wines: ["Barbera", "Pinot Nero", "Rosé"],
+    cocktails: ["Marco Polo", "El Diablo"],
+    beers: ["Amber Ale", "Hazy IPA"],
+    note: "Creamy, spicy vodka sauce pairs with a fruit-forward red or dry rosé" },
+
+  // PIZZA
+  { id: 23, category: "Pizza", name: "Margherita", desc: "marinara, mozzarella, basil",
+    wines: ["Chianti", "Barbera", "Montepulciano"],
+    cocktails: ["Aperol Spritz", "Bacca"],
+    beers: ["Pilsner", "Kölsch"],
+    note: "The classic calls for classic Italian reds or a bright spritz" },
+
+  { id: 24, category: "Pizza", name: "Burrata Pizza", desc: "marinara, fontina, burrata, basil",
+    wines: ["Pinot Noir", "Chianti", "Prosecco Rosé"],
+    cocktails: ["Aperol Spritz", "Pearl Negroni"],
+    beers: ["Kölsch", "Pilsner"],
+    note: "Rich burrata softens with a fruity Pinot or elegant sparkling" },
+
+  { id: 25, category: "Pizza", name: "Funghi", desc: "wild mushrooms, taleggio, thyme, marinated onions, fontina (white pizza)",
+    wines: ["Pinot Noir", "Nebbiolo", "Cabernet Franc"],
+    cocktails: ["Likely Story", "Lavender Social"],
+    beers: ["Oatmeal Stout", "Amber Ale"],
+    note: "Earthy mushrooms & taleggio love Pinot Noir — an iconic pairing" },
+
+  { id: 26, category: "Pizza", name: "Hot Honey Pizza", desc: "marinara, provolone, hot honey, hot salami, chili flakes, ricotta (spicy)",
+    wines: ["Barbera", "Montepulciano", "Pinot Nero"],
+    cocktails: ["El Diablo", "Marco Polo"],
+    beers: ["House IPA", "Hazy IPA"],
+    note: "Sweet heat loves a fruity red or a hoppy IPA to tame the spice" },
+
+  { id: 27, category: "Pizza", name: "Capricciosa", desc: "marinara, provolone, prosciutto cotto, artichokes, wild mushrooms",
+    wines: ["Chianti", "Barbera", "Montepulciano"],
+    cocktails: ["Aperol Spritz", "Bacca"],
+    beers: ["Amber Ale", "Pilsner"],
+    note: "Classic Italian toppings call for a classic Sangiovese-based red" },
+
+  { id: 28, category: "Pizza", name: "Spicy Soppressata", desc: "marinara, salami, mozzarella, green chili, olives, red onion, parmigiano",
+    wines: ["Montepulciano", "Barbera", "Chianti"],
+    cocktails: ["El Diablo", "Likely Story"],
+    beers: ["House IPA", "Amber Ale"],
+    note: "Spicy cured meat loves bold, fruity reds that match its intensity" },
+
+  { id: 29, category: "Pizza", name: "Fennel Sausage", desc: "marinara, onion, provolone, mozzarella, oregano, chili",
+    wines: ["Montepulciano", "Barbera", "Chianti"],
+    cocktails: ["Marco Polo", "Likely Story"],
+    beers: ["House IPA", "Amber Ale"],
+    note: "Anise-spiced sausage is a natural match for Barbera or Montepulciano" },
+
+  { id: 30, category: "Pizza", name: "Prosciutto di Parma", desc: "bechamel, aged parmesan, mozzarella, arugula (white pizza)",
+    wines: ["Pinot Grigio", "Rosé", "Gavi"],
+    cocktails: ["Pearl Negroni", "Lavender Social"],
+    beers: ["Kölsch", "Pilsner"],
+    note: "White pizza with delicate prosciutto loves crisp whites and rosé" },
+
+  { id: 31, category: "Pizza", name: "Bartender Pizza", desc: "marinara, burrata, olives, spicy fennel sausage, calabrese chilis (very spicy)",
+    wines: ["Barbera", "House Red – Cabernet", "Montepulciano"],
+    cocktails: ["El Diablo", "Marco Polo"],
+    beers: ["House IPA", "Hazy IPA"],
+    note: "This fiery pie needs bold, fruity reds or hoppy beers to handle the heat" },
+
+  // SPECIALS
+  { id: 32, category: "Specials", name: "Meatball Pizza", desc: "pomodoro, provolone, chili flakes, parmesan, meatballs, basil",
+    wines: ["Chianti", "Montepulciano", "Barbera"],
+    cocktails: ["Likely Story", "El Diablo"],
+    beers: ["House IPA", "Amber Ale"],
+    note: "A meat-and-tomato bomb that loves bold Sangiovese or a hoppy IPA" },
+
+  { id: 33, category: "Specials", name: "Spaghetti con Polpette", desc: "2 meatballs, spicy pomodoro, basil",
+    wines: ["Chianti", "Barbera", "Montepulciano"],
+    cocktails: ["Likely Story"],
+    beers: ["Oatmeal Stout", "House IPA"],
+    note: "The ultimate Italian-American comfort dish loves Chianti — always" },
+];
+
+const BEVERAGES = [
+  // WINES - Sparkling/White/Rosé
+  { id: "ribolla", name: "Ribolla Gialla Brut", sub: "Floris, Veneto IT — Sparkling", type: "sparkling", icon: "🥂",
+    foods: ["Prosciutto e Burrata","Burrata Bruschetta","Crab Arancini","Calamari","Burrata Pizza"] },
+  { id: "prosecco", name: "Prosecco Rosé Extra Dry", sub: "Col di Rocca, Veneto IT — Sparkling Rosé", type: "sparkling", icon: "🥂",
+    foods: ["Prosciutto e Burrata","Crab Arancini","Burrata Pizza","Prosciutto di Parma","Calamari"] },
+  { id: "house-white", name: "House White – Pinot Gris", sub: "Kivelstadt Cellars, CA 2023 — on tap", type: "white-wine", icon: "🍾",
+    foods: ["Onion Focaccia","Broccolini","Caesar Salad","Chicken Thigh Skewer","Vegetarian Panini"] },
+  { id: "rose", name: "Rosé", sub: "Cherubi, Friuli IT 2023", type: "sparkling", icon: "🌸",
+    foods: ["Gold & Red Beets","Prosciutto di Parma","Rigatoncini","Vegetarian Panini","Winter Salad"] },
+  { id: "falanghina", name: "Falanghina", sub: "Bozzovich, Campania IT 2021", type: "white-wine", icon: "🍾",
+    foods: ["White Prawns","Marinated Olives","Caponatina","Salmone Skewer","Calamari","Broccolini","Onion Focaccia"] },
+  { id: "gavi", name: "Gavi", sub: "Franco Serra, Piemonte IT 2022", type: "white-wine", icon: "🍾",
+    foods: ["White Prawns","Prosciutto e Burrata","Crab Arancini","Caesar Salad","Salmone Skewer","Burrata Bruschetta","Calamari"] },
+  { id: "verdicchio", name: "Verdicchio", sub: "filodivino serra 46, Ancona IT 2023", type: "white-wine", icon: "🍾",
+    foods: ["Marinated Olives","Caponatina","White Prawns","Broccolini","Cauliflower","Salmone Skewer"] },
+  { id: "pinot-grigio", name: "Pinot Grigio", sub: "Oynos, Terre Siciliane IT 2021", type: "white-wine", icon: "🍾",
+    foods: ["Onion Focaccia","Caesar Salad","Prosciutto di Parma","Burrata Bruschetta","Vegetarian Panini","Marinated Olives"] },
+  // WINES - Red
+  { id: "house-red", name: "House Red – Cabernet", sub: "Kivelstadt Cellars, CA 2023 — on tap", type: "red-wine", icon: "🍷",
+    foods: ["Meatball Sub","Meatballs","Hanger Steak","Ziti","Bartender Pizza"] },
+  { id: "montepulciano", name: "Montepulciano", sub: "Riseis, D'Abruzzo IT 2020", type: "red-wine", icon: "🍷",
+    foods: ["Meatballs","Pappardelle","Meatball Sub","Margherita","Spicy Soppressata","Fennel Sausage","Meatball Pizza","Hot Honey Pizza","Bartender Pizza"] },
+  { id: "barbera", name: "Barbera", sub: "Cantine Nostre, Asti Piemonte IT 2023", type: "red-wine", icon: "🍷",
+    foods: ["Meatballs","Pappardelle","Chicken Thigh Skewer","Capricciosa","Meatball Sub","Caponatina","Rigatoncini","Spicy Soppressata","Fennel Sausage","Hot Honey Pizza","Bartender Pizza","Ziti","Margherita","Spaghetti con Polpette","Meatball Pizza"] },
+  { id: "cab-franc", name: "Cabernet Franc", sub: "Castelvecchio, Friuli IT 2021 — natural", type: "red-wine", icon: "🍷",
+    foods: ["Hanger Steak","Winter Salad","Funghi","Gold & Red Beets"] },
+  { id: "nebbiolo", name: "Nebbiolo", sub: "Monchiero, IT 2023", type: "red-wine", icon: "🍷",
+    foods: ["Hanger Steak","Funghi","Capricciosa"] },
+  { id: "chianti", name: "Chianti", sub: "Marcanelli, Toscana IT 2018", type: "red-wine", icon: "🍷",
+    foods: ["Pappardelle","Ziti","Chicken Thigh Skewer","Capricciosa","Margherita","Burrata Pizza","Meatballs","Meatball Pizza","Spaghetti con Polpette","Spicy Soppressata","Fennel Sausage"] },
+  { id: "pinot-nero", name: "Pinot Nero", sub: "Mussio, Friuli IT 2023", type: "red-wine", icon: "🍷",
+    foods: ["Rigatoncini","Chicken Thigh Skewer","Hot Honey Pizza","Gold & Red Beets","Salmone Skewer"] },
+  { id: "pinot-noir", name: "Pinot Noir", sub: "Taylor's Son, Sonoma CA 2022", type: "red-wine", icon: "🍷",
+    foods: ["Funghi","Burrata Pizza","Winter Salad","Gold & Red Beets"] },
+  // COCKTAILS
+  { id: "aperol", name: "Aperol Spritz", sub: "bubbles, soda, orange peel", type: "cocktail", icon: "🍊",
+    foods: ["Marinated Olives","Margherita","Capricciosa","Calamari","Burrata Pizza"] },
+  { id: "bacca", name: "Bacca", sub: "sirene aperitivo, soda, cassis, bubbles", type: "cocktail", icon: "🫐",
+    foods: ["Marinated Olives","Caponatina","Vegetarian Panini","Margherita","Capricciosa"] },
+  { id: "hugo", name: "Hugo", sub: "bubbles, soda, elderflower, mint", type: "cocktail", icon: "🌿",
+    foods: ["Burrata Bruschetta","Broccolini","Cauliflower","Gold & Red Beets","Onion Focaccia","Vegetarian Panini"] },
+  { id: "salty-dog", name: "Salty Dog", sub: "vodka, elderflower, grapefruit", type: "cocktail", icon: "🍋",
+    foods: ["White Prawns","Onion Focaccia","Crab Arancini","Caesar Salad","Salmone Skewer","Calamari"] },
+  { id: "el-diablo", name: "El Diablo", sub: "tequila, ginger beer, lime, cassis", type: "cocktail", icon: "🌶️",
+    foods: ["Broccolini","Cauliflower","Hot Honey Pizza","Spicy Soppressata","Meatball Sub","Bartender Pizza","Meatball Pizza"] },
+  { id: "likely-story", name: "Likely Story", sub: "bourbon, zucca amaro, sugar, bitters", type: "cocktail", icon: "🥃",
+    foods: ["Meatballs","Hanger Steak","Meatball Sub","Pappardelle","Winter Salad","Chicken Thigh Skewer","Ziti","Spaghetti con Polpette","Meatball Pizza","Spicy Soppressata","Fennel Sausage"] },
+  { id: "marco-polo", name: "Marco Polo", sub: "tequila, framboise, apricot, pineapple", type: "cocktail", icon: "🍹",
+    foods: ["Chicken Thigh Skewer","Rigatoncini","Hot Honey Pizza","Fennel Sausage","Ziti","Bartender Pizza"] },
+  { id: "pearl-negroni", name: "Pearl Negroni", sub: "bar hill gin, white campari, lillet rosé", type: "cocktail", icon: "🍸",
+    foods: ["Prosciutto e Burrata","White Prawns","Crab Arancini","Caesar Salad","Salmone Skewer","Prosciutto di Parma"] },
+  { id: "lavender-social", name: "Lavender Social", sub: "bar hill gin, lillet rosé, lemon, orgeat, lavender bitters", type: "cocktail", icon: "💜",
+    foods: ["Burrata Bruschetta","Gold & Red Beets","Funghi","Prosciutto di Parma","Winter Salad"] },
+  // BEER
+  { id: "kolsch", name: "Kölsch", sub: "Delarosa House Ale, SF CA 4.6%", type: "beer", icon: "🍺",
+    foods: ["Prosciutto e Burrata","Marinated Olives","Burrata Bruschetta","Onion Focaccia","White Prawns","Crab Arancini","Caesar Salad","Calamari","Burrata Pizza","Margherita","Prosciutto di Parma","Salmone Skewer"] },
+  { id: "house-ipa", name: "House IPA", sub: "Delarosa House IPA, SF CA 6.3%", type: "beer", icon: "🍺",
+    foods: ["Meatballs","Hanger Steak","Meatball Sub","Pappardelle","Chicken Thigh Skewer","Hot Honey Pizza","Spicy Soppressata","Fennel Sausage","Bartender Pizza","Meatball Pizza","Ziti","Rigatoncini"] },
+  { id: "hazy-ipa", name: "Hazy IPA", sub: "Lobos IPA, Fort Point SF 6.9%", type: "beer", icon: "🍺",
+    foods: ["Gold & Red Beets","Hot Honey Pizza","Rigatoncini","Bartender Pizza"] },
+  { id: "pilsner", name: "Pilsner", sub: "Stella Artois, Belgium 5%", type: "beer", icon: "🍺",
+    foods: ["Onion Focaccia","Margherita","Capricciosa","Prosciutto di Parma","Caesar Salad","Crab Arancini"] },
+  { id: "amber-ale", name: "Amber Ale", sub: "Copper Ale, Enterprise Brewing SF 4.7%", type: "beer", icon: "🍺",
+    foods: ["Caponatina","Winter Salad","Chicken Thigh Skewer","Capricciosa","Pappardelle","Ziti","Rigatoncini","Meatball Sub","Spicy Soppressata","Fennel Sausage","Meatball Pizza"] },
+  { id: "witbier", name: "Witbier", sub: "Orange Ave, Coronado Brewing 5.5%", type: "beer", icon: "🍺",
+    foods: ["Marinated Olives","Caponatina","Broccolini","Cauliflower","Gold & Red Beets","Vegetarian Panini","White Prawns","Salmone Skewer"] },
+  { id: "oatmeal-stout", name: "Oatmeal Stout", sub: "East Brother CA 5.4%", type: "beer", icon: "🍺",
+    foods: ["Winter Salad","Funghi","Hanger Steak","Spaghetti con Polpette"] },
+];
+
+let currentMode = 'food';
+let currentFilter = 'all';
+let currentSearch = '';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeFood').classList.toggle('active', mode === 'food');
+  document.getElementById('modeDrink').classList.toggle('active', mode === 'drink');
+  document.getElementById('foodView').style.display = mode === 'food' ? 'block' : 'none';
+  document.getElementById('drinkView').style.display = mode === 'drink' ? 'block' : 'none';
+  document.getElementById('filters').style.display = mode === 'food' ? 'flex' : 'none';
+  render();
+}
+
+function render() {
+  if (currentMode === 'food') renderFood();
+  else renderDrinks();
+}
+
+function renderFood() {
+  const container = document.getElementById('foodView');
+  const q = currentSearch.toLowerCase();
+
+  let items = MENU;
+  if (currentFilter !== 'all') items = items.filter(i => i.category === currentFilter);
+  if (q) items = items.filter(i =>
+    i.name.toLowerCase().includes(q) ||
+    i.desc.toLowerCase().includes(q) ||
+    i.category.toLowerCase().includes(q) ||
+    [...i.wines, ...i.cocktails, ...i.beers].some(b => b.toLowerCase().includes(q))
+  );
+
+  if (!items.length) {
+    container.innerHTML = '<div class="no-results">No matches found</div>';
+    return;
+  }
+
+  const groups = {};
+  items.forEach(i => {
+    if (!groups[i.category]) groups[i.category] = [];
+    groups[i.category].push(i);
+  });
+
+  let html = '';
+  for (const [cat, catItems] of Object.entries(groups)) {
+    html += `<div class="section-label">${cat}</div>`;
+    catItems.forEach(item => {
+      html += `
+        <div class="item-card" id="card-${item.id}" onclick="toggleCard(${item.id})">
+          <div class="item-header">
+            <div>
+              <div class="item-name">${item.name}</div>
+              <div class="item-desc">${item.desc}</div>
+            </div>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+          <div class="pairings-panel">
+            ${item.wines.length ? `
+            <div class="pairing-section">
+              <div class="pairing-label wine">🍷 Best Wines</div>
+              <div class="pairing-chips">
+                ${item.wines.map(w => `<span class="chip wine">${w}</span>`).join('')}
+              </div>
+            </div>` : ''}
+            ${item.cocktails.length ? `
+            <div class="pairing-section">
+              <div class="pairing-label cocktail">🍸 Cocktails</div>
+              <div class="pairing-chips">
+                ${item.cocktails.map(c => `<span class="chip cocktail">${c}</span>`).join('')}
+              </div>
+            </div>` : ''}
+            ${item.beers.length ? `
+            <div class="pairing-section">
+              <div class="pairing-label beer">🍺 Beer</div>
+              <div class="pairing-chips">
+                ${item.beers.map(b => `<span class="chip beer">${b}</span>`).join('')}
+              </div>
+            </div>` : ''}
+            ${item.note ? `
+            <div class="pairing-section">
+              <div class="pairing-chips">
+                <span class="chip note">💡 ${item.note}</span>
+              </div>
+            </div>` : ''}
+          </div>
+        </div>`;
+    });
+  }
+  container.innerHTML = html;
+}
+
+function renderDrinks() {
+  const container = document.getElementById('drinkView');
+  const q = currentSearch.toLowerCase();
+
+  const typeOrder = ['sparkling','white-wine','red-wine','cocktail','beer'];
+  const typeLabels = {
+    sparkling: '🥂 Sparkling, Rosé & White (Sparkling)',
+    'white-wine': '🍾 White Wine',
+    'red-wine': '🍷 Red Wine',
+    cocktail: '🍸 Cocktails',
+    beer: '🍺 Beer'
+  };
+
+  let bevs = BEVERAGES;
+  if (q) bevs = bevs.filter(b =>
+    b.name.toLowerCase().includes(q) ||
+    b.sub.toLowerCase().includes(q) ||
+    b.foods.some(f => f.toLowerCase().includes(q))
+  );
+
+  if (!bevs.length) {
+    container.innerHTML = '<div class="no-results">No matches found</div>';
+    return;
+  }
+
+  let html = '';
+  typeOrder.forEach(type => {
+    const group = bevs.filter(b => b.type === type);
+    if (!group.length) return;
+    html += `<div class="section-label">${typeLabels[type]}</div>`;
+    group.forEach(bev => {
+      html += `
+        <div class="bev-card" id="bcard-${bev.id}" onclick="toggleBevCard('${bev.id}')">
+          <div class="bev-header">
+            <div class="bev-icon">${bev.icon}</div>
+            <div class="bev-info">
+              <div class="bev-name">${bev.name}</div>
+              <div class="bev-sub">${bev.sub}</div>
+            </div>
+            <span class="bev-type-tag ${bev.type}">${bev.type.replace('-',' ')}</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:8px;flex-shrink:0;">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+          <div class="bev-panel">
+            <div class="pairs-with-label">Pairs with</div>
+            <div class="food-chips">
+              ${bev.foods.map(f => `<span class="food-chip">${f}</span>`).join('')}
+            </div>
+          </div>
+        </div>`;
+    });
+  });
+  container.innerHTML = html;
+}
+
+function toggleCard(id) {
+  const el = document.getElementById('card-' + id);
+  el.classList.toggle('open');
+}
+
+function toggleBevCard(id) {
+  const el = document.getElementById('bcard-' + id);
+  el.classList.toggle('open');
+}
+
+// Filters
+document.getElementById('filters').addEventListener('click', e => {
+  if (e.target.classList.contains('filter-btn')) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    render();
+  }
+});
+
+// Search
+document.getElementById('search').addEventListener('input', e => {
+  currentSearch = e.target.value;
+  render();
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
