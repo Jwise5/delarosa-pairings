@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Delarosa Pairings</title>
+<meta name="apple-mobile-web-app-title" content="Delarosa">
+<meta name="description" content="Food & drink pairings for every dish at Delarosa — wines, cocktails & beers.">
+<meta name="theme-color" content="#1a1a1a">
+
+<!-- Home screen icon (iOS) -->
+<link rel="apple-touch-icon" href="https://images.getbento.com/accounts/bdc45bf2e7b17a706288ab2a6c48b9d1/media/images/2216DeLaRosa_Logo-01.png">
+
+<!-- Splash screens for common iPhone sizes -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://images.getbento.com/accounts/bdc45bf2e7b17a706288ab2a6c48b9d1/media/images/2216DeLaRosa_Logo-01.png">
+
+<title>Delarosa | Pairings</title>
 <style>
   :root {
     --red: #C0392B;
@@ -40,13 +53,13 @@
     top: 0;
     z-index: 100;
   }
-  .logo {
-    font-family: Georgia, serif;
-    font-style: italic;
-    font-size: 28px;
-    color: var(--red);
-    letter-spacing: 1px;
+  .logo img {
+    height: 32px;
+    width: auto;
+    display: block;
     margin-bottom: 4px;
+    /* invert white logo for dark bg */
+    filter: brightness(0) invert(1);
   }
   .tagline {
     font-size: 11px;
@@ -54,6 +67,36 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 14px;
+  }
+
+  /* SPLASH SCREEN */
+  #splash {
+    position: fixed;
+    inset: 0;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+  }
+  #splash.hidden { opacity: 0; pointer-events: none; }
+  #splash img {
+    width: 180px;
+    filter: brightness(0) invert(1);
+  }
+  #splash .splash-sub {
+    color: #9a9590;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  #splash .splash-line {
+    width: 40px;
+    height: 1px;
+    background: #C0392B;
   }
 
   /* SEARCH */
@@ -308,8 +351,17 @@
 </head>
 <body>
 
+<!-- Splash Screen -->
+<div id="splash">
+  <img src="https://images.getbento.com/accounts/bdc45bf2e7b17a706288ab2a6c48b9d1/media/images/2216DeLaRosa_Logo-01.png" alt="Delarosa">
+  <div class="splash-line"></div>
+  <div class="splash-sub">Food &amp; Drink Pairings</div>
+</div>
+
 <header>
-  <div class="logo">delarosa</div>
+  <div class="logo">
+    <img src="https://images.getbento.com/accounts/bdc45bf2e7b17a706288ab2a6c48b9d1/media/images/2216DeLaRosa_Logo-01.png" alt="Delarosa">
+  </div>
   <div class="tagline">Food &amp; Drink Pairings</div>
   <div class="search-wrap">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -797,6 +849,15 @@ document.getElementById('search').addEventListener('input', e => {
 
 // Initial render
 render();
+
+// Splash screen — hide after 1.6s
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.classList.add('hidden');
+    setTimeout(() => splash.remove(), 500);
+  }, 1600);
+});
 </script>
 </body>
 </html>
